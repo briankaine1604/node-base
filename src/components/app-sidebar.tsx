@@ -1,10 +1,18 @@
 "use client";
-import { FolderOpen, History, KeyIcon } from "lucide-react";
+import {
+  CreditCard,
+  FolderOpen,
+  History,
+  KeyIcon,
+  LogOut,
+  StarIcon,
+} from "lucide-react";
 import Link from "next/link";
 
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -15,6 +23,7 @@ import {
 } from "@/components/ui/sidebar";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
+import { authClient } from "@/lib/auth-client";
 
 // Menu items.
 const menuItems = [
@@ -43,6 +52,7 @@ const menuItems = [
 export function AppSidebar() {
   const router = useRouter();
   const pathname = usePathname();
+
   return (
     <Sidebar>
       <SidebarHeader>
@@ -84,6 +94,48 @@ export function AppSidebar() {
           </SidebarGroup>
         ))}
       </SidebarContent>
+      <SidebarFooter>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              tooltip={"Upgade to pro"}
+              className="gap-x-4 h-10 px-4"
+              onClick={() => router.push("/pricing")}
+            >
+              <StarIcon className="size-4" />
+              <span>Upgrade to Pro</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              tooltip={"Billing portal"}
+              className="gap-x-4 h-10 px-4"
+              onClick={() => router.push("#")}
+            >
+              <CreditCard className="size-4" />
+              <span>Billing portal</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              tooltip={"Sign out"}
+              className="gap-x-4 h-10 px-4"
+              onClick={() =>
+                authClient.signOut({
+                  fetchOptions: {
+                    onSuccess: () => {
+                      router.push("/login");
+                    },
+                  },
+                })
+              }
+            >
+              <LogOut className="size-4" />
+              <span>Sign out</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
     </Sidebar>
   );
 }
