@@ -1,19 +1,29 @@
 import prisma from "@/lib/db";
 import { inngest } from "./client";
+import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import { generateText } from "ai";
+import * as Sentry from "@sentry/nextjs";
 
-export const helloWorld = inngest.createFunction(
-  { id: "hello-world" },
-  { event: "test/hello.world" },
+const google = createGoogleGenerativeAI();
+
+export const execute = inngest.createFunction(
+  { id: "execute" },
+  { event: "execute/ai" },
   async ({ event, step }) => {
-    await step.sleep("fetching vid", "10s");
-    await step.sleep("transcribing", "10s");
-    await step.sleep(" analyzing", "10s");
-    await step.run("finalizing", async () => {
-      return prisma.workflow.create({
-        data: {
-          name: "New Workflow",
-        },
-      });
+    Sentry.logger.info("User triggered AI execution", {
+      log_source: "sentry_test",
     });
+    const { steps } = await step.ai.wrap("gemini-generate-text", generateText, {
+      model: google("gemini-2.5-flash"),
+      system: "You are a helpful assistant",
+      prompt: "What is 2 + 2?",
+      experimental_telemetry: {
+        isEnabled: true,
+        recordInputs: true,
+        recordOutputs: true,
+      },
+    });
+
+    return steps;
   }
 );
