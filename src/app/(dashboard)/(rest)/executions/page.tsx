@@ -1,8 +1,10 @@
+import { requireAuth } from "@/lib/auth-utils";
 import React from "react";
 
 type Props = {};
 
-export default function page({}: Props) {
+export default async function page({}: Props) {
+  await requireAuth();
   return (
     <div>
       executions
