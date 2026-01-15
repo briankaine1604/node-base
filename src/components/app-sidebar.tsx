@@ -24,6 +24,7 @@ import {
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
+import { userHasActiveSubscription } from "@/features/subscriptions/hooks/use-subscription";
 
 // Menu items.
 const menuItems = [
@@ -52,6 +53,7 @@ const menuItems = [
 export function AppSidebar() {
   const router = useRouter();
   const pathname = usePathname();
+  const { hasActiveSubscription, isLoading } = userHasActiveSubscription();
 
   return (
     <Sidebar>
@@ -96,16 +98,18 @@ export function AppSidebar() {
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              tooltip={"Upgade to pro"}
-              className="gap-x-4 h-10 px-4"
-              onClick={() => router.push("/pricing")}
-            >
-              <StarIcon className="size-4" />
-              <span>Upgrade to Pro</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
+          {!!hasActiveSubscription && !!isLoading && (
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                tooltip={"Upgade to pro"}
+                className="gap-x-4 h-10 px-4"
+                onClick={() => authClient.checkout({ slug: "Nodebase-Pro" })}
+              >
+                <StarIcon className="size-4" />
+                <span>Upgrade to Pro</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          )}
           <SidebarMenuItem>
             <SidebarMenuButton
               tooltip={"Billing portal"}
